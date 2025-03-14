@@ -39,9 +39,13 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.REAL,
       allowNull: true
     },
-    raport: {
+    feedback: {
       type: DataTypes.BLOB,
       allowNull: true
+    },
+    uuidtest: {
+      type: DataTypes.BIGINT,
+      allowNull: false
     }
   }, {
     sequelize,

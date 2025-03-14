@@ -17,6 +17,14 @@ module.exports = function(sequelize, DataTypes) {
     },
     raport: {
       type: DataTypes.JSONB,
+      allowNull: true
+    },
+    datacreatie: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
+    uuidtema: {
+      type: DataTypes.BIGINT,
       allowNull: false
     }
   }, {
