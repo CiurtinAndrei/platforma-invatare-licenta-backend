@@ -42,7 +42,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     parola: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(100),
       allowNull: false,
       unique: "parola_unique_elev"
     },
