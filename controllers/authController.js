@@ -82,3 +82,36 @@ exports.checkAuth = async (req, res) => {
         return res.status(500).json({ message: "Eroare server" });
     }
 };
+
+
+exports.getUserInfo = async (req, res) => {
+    try {
+        const { id, role } = req.user;
+
+        let user;
+        if (role === "profesor") {
+            user = await Profesori.findByPk(id, { attributes: ["nume", "prenume"] });
+        } else if (role === "elev") {
+            user = await Elevi.findByPk(id, { attributes: ["nume", "prenume"] });
+        }
+
+        if (!user) {
+            return res.status(404).json({ message: "Utilizatorul nu a fost găsit" });
+        }
+
+        return res.json({ nume: user.nume, prenume: user.prenume, role });
+    } catch (err) {
+        console.error("Eroare la obținerea informațiilor utilizatorului:", err);
+        return res.status(500).json({ message: "Eroare server" });
+    }
+};
+
+exports.logout = (req, res) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict"
+    });
+    return res.json({ message: "Logout reușit" });
+};
+

@@ -1,18 +1,20 @@
 const bcrypt = require("bcrypt");
-const { Elevi } = require("../models");
+const {Profesori, Elevi} = require("../models")
 
 exports.creeazaElev = async (req, res) => {
   try {
     const { nume, prenume, adresa, email, telefon, scoala, parola, clasa } = req.body;
 
     const emailExistent = await Elevi.findOne({ where: { email } });
-    if (emailExistent) {
-      return res.status(400).json({ error: "Un elev cu acest e-mail este deja înregistrat!" });
+    const emailExistentLaProfesori = await Profesori.findOne({where: {email}})
+    if (emailExistent || emailExistentLaProfesori) {
+      return res.status(400).json({ error: "Un utilizator cu acest e-mail este deja înregistrat!" });
     }
 
     const telExistent = await Elevi.findOne({ where: { telefon } });
-    if (telExistent) {
-      return res.status(400).json({ error: "Un elev cu acest nr de telefon este deja înregistrat!" });
+    const telExistentLaProfesori = await Profesori.findOne({where: {telefon}})
+    if (telExistent || telExistentLaProfesori) {
+      return res.status(400).json({ error: "Un utilizator cu acest nr de telefon este deja înregistrat!" });
     }
 
     const hashedPassword = await bcrypt.hash(parola, 10);
