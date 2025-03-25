@@ -14,6 +14,7 @@ const DB = process.env.PG_DB;
 const profesorRoutes = require("./routes/profesorRoutes");
 const elevRoutes = require("./routes/elevRoutes");
 const authRoutes = require("./routes/authRoutes");
+const testRoutes = require("./routes/testRoutes");
 
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/profesori", profesorRoutes);
 app.use("/api/elevi", elevRoutes);
+app.use("/api/teste", testRoutes);
 
 app.listen(port, async (err) => {
     if (err) {

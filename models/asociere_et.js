@@ -22,7 +22,12 @@ module.exports = function(sequelize, DataTypes) {
         model: 'exercitii',
         key: 'idexercitiu'
       }
+    },
+    punctaj:{
+      type: DataTypes.INTEGER,
+      allowNull: true,
     }
+    
   }, {
     sequelize,
     tableName: 'asociere_et',
