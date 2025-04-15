@@ -7,7 +7,7 @@ exports.creeazaProfesor = async (req, res) =>{
         const { nume, prenume, adresa, email, telefon, scoala, parola } = req.body
         const emailExistent= await Profesori.findOne({where: {email}})
         const emailExistentLaElevi = await Elevi.findOne({where: {email}})
-            if(emailExisten || emailExistentLaElevi){
+            if(emailExistent || emailExistentLaElevi){
                 return res.status(400).json({error: "Un utilizator cu acest e-mail este deja înregistrat!"})
             }
         const telExistent= await Profesori.findOne({where: {telefon}})

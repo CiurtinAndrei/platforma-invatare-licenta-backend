@@ -28,11 +28,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     document: {
-      type: DataTypes.BLOB,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     barem: {
-      type: DataTypes.BLOB,
+      type: DataTypes.TEXT,
       allowNull: false
     }
   }, {

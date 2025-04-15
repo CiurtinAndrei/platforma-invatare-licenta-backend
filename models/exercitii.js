@@ -7,18 +7,6 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    clasa: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    capitol: {
-      type: DataTypes.STRING(45),
-      allowNull: false
-    },
-    subcapitol: {
-      type: DataTypes.STRING(45),
-      allowNull: false
-    },
     punctaj: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -30,6 +18,22 @@ module.exports = function(sequelize, DataTypes) {
     rezolvare: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    capitol: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'capitole',
+        key: 'idcapitol'
+      }
+    },
+    subcapitol: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'subcapitole',
+        key: 'idsubcapitol'
+      }
     }
   }, {
     sequelize,

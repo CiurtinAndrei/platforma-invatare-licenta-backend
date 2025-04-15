@@ -15,14 +15,6 @@ module.exports = function(sequelize, DataTypes) {
         key: 'idelev'
       }
     },
-    document: {
-      type: DataTypes.BLOB,
-      allowNull: false
-    },
-    barem: {
-      type: DataTypes.BLOB,
-      allowNull: true
-    },
     datatrimitere: {
       type: DataTypes.DATEONLY,
       allowNull: false
@@ -39,13 +31,21 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.REAL,
       allowNull: true
     },
-    feedback: {
-      type: DataTypes.BLOB,
+    idtest: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: 'teste',
+        key: 'idtest'
+      }
+    },
+    raportprofesor: {
+      type: DataTypes.JSONB,
       allowNull: true
     },
-    uuidtest: {
-      type: DataTypes.BIGINT,
-      allowNull: false
+    'feedback ': {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,

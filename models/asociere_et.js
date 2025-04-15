@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     idtest: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'teste',
         key: 'idtest'
@@ -17,17 +17,16 @@ module.exports = function(sequelize, DataTypes) {
     },
     idexercitiu: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'exercitii',
         key: 'idexercitiu'
       }
     },
-    punctaj:{
+    punctaj: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: true
     }
-    
   }, {
     sequelize,
     tableName: 'asociere_et',
