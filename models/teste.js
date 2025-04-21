@@ -34,6 +34,10 @@ module.exports = function(sequelize, DataTypes) {
     barem: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    titlu: {
+      type: DataTypes.STRING(45),
+      allowNull: true
     }
   }, {
     sequelize,

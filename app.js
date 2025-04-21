@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const { Sequelize } = require("sequelize");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -32,6 +33,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profesori", profesorRoutes);
 app.use("/api/elevi", elevRoutes);
 app.use("/api/teste", testRoutes);
+
+app.use('/pdfs', express.static(path.join(__dirname, 'doc_gen')));
 
 app.listen(port, async (err) => {
     if (err) {

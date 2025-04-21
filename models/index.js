@@ -20,6 +20,7 @@ Subcapitole.belongsTo(Capitole, { foreignKey: 'idcapitol', as: 'capitolInfo' });
 Teste.belongsTo(Profesori, { foreignKey: 'idprofesor', as: 'ProfesorInfo' });
 AsociereEt.belongsTo(Teste, { foreignKey: 'idtest', as: 'Test' });
 AsociereEt.belongsTo(Exercitii, { foreignKey: 'idexercitiu', as: 'Exercitiu' });
+Elevi.belongsTo(Profesori, { foreignKey: 'idprofesor', as: 'Profesor' });
 
 module.exports = {
   sequelize,

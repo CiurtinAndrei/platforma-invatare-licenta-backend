@@ -8,5 +8,6 @@ router.get("/exercitii", testController.getExercises);
 
 router.post("/generate", authenticateJWT, testController.generateTest);
 router.get("/all", authenticateJWT, testController.getTestsForProfessor);
+router.post("/delete/:id", testController.delete);
 
 module.exports = router;

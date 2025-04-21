@@ -16,7 +16,7 @@ exports.authenticateJWT = (req, res, next) => {
             return res.status(403).json({ message: "Token invalid sau expirat" });
         }
 
-        // Attach decoded user info to request object
+
         req.user = decoded;
         next();
     });
@@ -75,7 +75,7 @@ exports.checkAuth = async (req, res) => {
             return res.status(404).json({ message: "Utilizatorul nu a fost găsit" });
         }
 
-        // Send the user's role back to the frontend
+
         return res.json({ role });
     } catch (err) {
         console.error("Eroare la verificarea autentificării:", err);

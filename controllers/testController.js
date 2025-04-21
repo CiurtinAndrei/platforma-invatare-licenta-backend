@@ -8,6 +8,8 @@ const {
   } = require("../models");
 const { spawn } = require("child_process");
 
+const BASE_URL = "http://localhost:8000/pdfs";
+
 const latexHeaderTest = `
 \\documentclass[12pt]{extarticle}
 \\usepackage{newtxtext,newtxmath}
@@ -16,6 +18,7 @@ const latexHeaderTest = `
 \\usepackage{fancyhdr}
 \\usepackage{pgfplots}
 \\usepackage{tikz}
+\\usepackage{needspace}
 \\usetikzlibrary{calc}
 \\pgfplotsset{compat=1.18}
 
@@ -26,9 +29,11 @@ const latexHeaderTest = `
 
 \\begin{document}
 \\begin{center}
-    \\textbf{\\large TEST DE EVALUARE}\\\\[1mm]
+\\textbf{\\huge TEST DE EVALUARE}\\\\[1mm]
 \\end{center}
-\\vspace{1cm}
+\\vspace{3cm}
+{\\large \\textbf{Total: 100 puncte (10 puncte din oficiu).}}
+\\vspace{2cm}
 `;
 
 const latexHeaderBarem = `
@@ -39,6 +44,7 @@ const latexHeaderBarem = `
 \\usepackage{fancyhdr}
 \\usepackage{pgfplots}
 \\usepackage{tikz}
+\\usepackage{needspace}
 \\usetikzlibrary{calc}
 \\pgfplotsset{compat=1.18}
 
@@ -49,9 +55,11 @@ const latexHeaderBarem = `
 
 \\begin{document}
 \\begin{center}
-    \\textbf{\\large BAREM DE CORECTARE}\\\\[1mm]
+\\textbf{\\huge BAREM DE CORECTARE}\\\\[1mm]
 \\end{center}
-\\vspace{1cm}
+\\vspace{3cm}
+{\\large \\textbf{Total: 100 puncte (10 puncte din oficiu).}}
+\\vspace{2cm}
 `;
 
 const latexFooter = `
@@ -92,6 +100,7 @@ function generateFileName(prefix) {
 exports.generateTest = async (req, res) => {
     try {
         const professorId = req.user.id;
+        const { titlu } = req.body;
         const exercisesChosen = [];
         let testDocumentContent = latexHeaderTest;
         let baremContent = latexHeaderBarem;
@@ -128,13 +137,14 @@ exports.generateTest = async (req, res) => {
 
                 exercisesChosen.push(exercise.idexercitiu);
 
-                if (exerciseCounter === 1) {
-                    testDocumentContent += `\\noindent ${exerciseCounter}. ${exercise.cerinta}\n\n`;
-                    baremContent += `\\noindent ${exerciseCounter}. ${exercise.rezolvare}\n\n`;
-                } else {
-                    testDocumentContent += `${exerciseCounter}. ${exercise.cerinta}\n\n`;
-                    baremContent += `${exerciseCounter}. ${exercise.rezolvare}\n\n`;
-                }
+                    testDocumentContent += `\\needspace{10\\baselineskip}`;
+                    testDocumentContent += `\\noindent (5P)  \\textbf{${exerciseCounter}}. ${exercise.cerinta}\n\n`;
+                    testDocumentContent += `\\vspace{0.5cm}`;
+                    baremContent += `\\needspace{10\\baselineskip}`;
+                    baremContent += `\\noindent (5P)  \\textbf{${exerciseCounter}}. ${exercise.rezolvare}\n\n`;
+                    baremContent += `\\vspace{0.5cm}`;
+
+
 
                 exerciseCounter++;
             }
@@ -223,8 +233,9 @@ exports.generateTest = async (req, res) => {
             tip: "Generat",
             datacreatie: new Date(),
             notamaxima: 10,
-            document: path.basename(testPDF),
-            barem: path.basename(baremPDF)
+            document: `${BASE_URL}/${path.basename(testPDF)}`,
+            barem: `${BASE_URL}/${path.basename(baremPDF)}`,
+            titlu
         });
 
         for (const exerciseId of exercisesChosen) {
@@ -232,7 +243,7 @@ exports.generateTest = async (req, res) => {
                 idtest: newTest.idtest,
                 idexercitiu: exerciseId,
                 punctaj: null
-            });
+            }); 
         }
 
         res.status(201).json({ message: "Test generat cu succes!", test: newTest });
@@ -306,3 +317,38 @@ exports.getExercises = async (req, res) => {
     }
 };
 
+exports.delete = async(req, res)=>{
+    const { id } = req.params;
+
+  try {
+    const test = await Teste.findByPk(id);
+    if (!test) {
+      return res.status(404).json({ error: 'Testul nu a fost găsit' });
+    }
+
+    const filesToDelete = [test.document, test.barem];
+
+    filesToDelete.forEach(fileUrl => {
+      if (fileUrl) {
+
+        const filename = path.basename(fileUrl);
+    
+
+        const fullPath = path.join(__dirname, '..', 'doc_gen', filename);
+    
+ 
+        fs.unlink(fullPath, (err) => {
+          if (err) {
+            console.warn(`Nu a fost șters fișierul: ${fullPath}`, err.message);
+          }
+        });
+    }
+    });
+
+    await test.destroy();
+    res.json({ message: 'Test șters cu succes' });
+  } catch (error) {
+    console.error('Eroare la ștergerea testului:', error);
+    res.status(500).json({ error: 'Eroare internă de server' });
+  }
+}
