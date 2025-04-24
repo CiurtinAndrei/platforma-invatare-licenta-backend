@@ -26,8 +26,8 @@ function initModels(sequelize) {
   elevi.hasMany(teme, { as: "temes", foreignKey: "idelev"});
   asociere_et.belongsTo(exercitii, { as: "idexercitiu_exercitii", foreignKey: "idexercitiu"});
   exercitii.hasMany(asociere_et, { as: "asociere_ets", foreignKey: "idexercitiu"});
-  elevi.belongsTo(profesori, { as: "idprofesor_profesori", foreignKey: "idprofesor"});
-  profesori.hasMany(elevi, { as: "elevis", foreignKey: "idprofesor"});
+  elevi.belongsTo(profesori, { as: "idprof_profesori", foreignKey: "idprof"});
+  profesori.hasMany(elevi, { as: "elevis", foreignKey: "idprof"});
   teste.belongsTo(profesori, { as: "idprofesor_profesori", foreignKey: "idprofesor"});
   profesori.hasMany(teste, { as: "testes", foreignKey: "idprofesor"});
   exercitii.belongsTo(subcapitole, { as: "subcapitol_subcapitole", foreignKey: "subcapitol"});

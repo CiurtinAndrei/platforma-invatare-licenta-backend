@@ -33,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     idtest: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'teste',
         key: 'idtest'
@@ -44,6 +44,10 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     'feedback ': {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    rezolvare: {
       type: DataTypes.TEXT,
       allowNull: true
     }

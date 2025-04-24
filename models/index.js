@@ -13,6 +13,7 @@ const Capitole = require("./capitole")(sequelize, DataTypes);
 const Subcapitole = require("./subcapitole")(sequelize, DataTypes);
 const Teste = require("./teste")(sequelize, DataTypes);
 const AsociereEt = require("./asociere_et")(sequelize, DataTypes);
+const Teme = require("./teme")(sequelize, DataTypes);
 
 Exercitii.belongsTo(Capitole, { foreignKey: 'capitol', as: 'capitolInfo' });
 Exercitii.belongsTo(Subcapitole, { foreignKey: 'subcapitol', as: 'subcapitolInfo' });
@@ -20,7 +21,9 @@ Subcapitole.belongsTo(Capitole, { foreignKey: 'idcapitol', as: 'capitolInfo' });
 Teste.belongsTo(Profesori, { foreignKey: 'idprofesor', as: 'ProfesorInfo' });
 AsociereEt.belongsTo(Teste, { foreignKey: 'idtest', as: 'Test' });
 AsociereEt.belongsTo(Exercitii, { foreignKey: 'idexercitiu', as: 'Exercitiu' });
-Elevi.belongsTo(Profesori, { foreignKey: 'idprofesor', as: 'Profesor' });
+Elevi.belongsTo(Profesori, { foreignKey: 'idprof', as: 'Profesor' });
+Teme.belongsTo(Elevi, {foreignKey:'idelev', as: 'Elev'});
+Teme.belongsTo(Teste, {foreignKey:'idtest', as: 'Test'});
 
 module.exports = {
   sequelize,
@@ -31,4 +34,5 @@ module.exports = {
   Subcapitole,
   Teste,
   AsociereEt,
+  Teme,
 };

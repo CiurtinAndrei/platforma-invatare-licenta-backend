@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    idprofesor: {
+    idprof: {
       type: DataTypes.BIGINT,
       allowNull: true,
       references: {

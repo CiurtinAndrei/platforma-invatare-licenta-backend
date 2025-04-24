@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const { Profesori, Elevi } = require("../models");
+const { Teme, Teste } = require("../models");
 
 // existing registration
 exports.creeazaElev = async (req, res) => {
@@ -42,7 +43,7 @@ exports.creeazaElev = async (req, res) => {
 exports.getUnassigned = async (req, res) => {
   try {
     const elevi = await Elevi.findAll({
-      where: { idprofesor: null },
+      where: { idprof: null },
       attributes: ["idelev", "nume", "prenume"]
     });
     const payload = elevi.map(e => ({
@@ -64,9 +65,9 @@ exports.enroll = async (req, res) => {
     const elev = await Elevi.findByPk(idelev);
 
     if (!elev) return res.status(404).json({ error: "Elev inexistent." });
-    if (elev.idprofesor) return res.status(400).json({ error: "Elev deja înrolat." });
+    if (elev.idprof) return res.status(400).json({ error: "Elev deja înrolat." });
 
-    elev.idprofesor = profesorId;
+    elev.idprof = profesorId;
     await elev.save();
     res.status(200).json({ message: "Elev înrolat cu succes." });
   } catch (err) {
@@ -80,7 +81,7 @@ exports.getMine = async (req, res) => {
   try {
     const profesorId = req.user.id;      // ← from your JWT
     const elevi = await Elevi.findAll({
-      where: { idprofesor: profesorId },
+      where: { idprof: profesorId },
       attributes: ["idelev", "nume", "prenume", "clasa"]
     });
     const payload = elevi.map(e => ({
@@ -92,5 +93,43 @@ exports.getMine = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Eroare la obținerea elevilor înrolați." });
+  }
+};
+
+
+exports.getTemeElev = async (req, res) => {
+  try {
+    const elevId = req.user.id;  
+
+    
+    const teme = await Teme.findAll({
+      include: [
+        {
+          model: Teste,
+          as: 'Test',  // Alias used in the association
+          required: false,  // Allow Test to be null
+          attributes: ['titlu', 'document', 'barem']
+        }
+      ],
+      where: { idelev: elevId },  // Filter by student ID
+      attributes: ['idtema', 'datatrimitere', 'status', 'rezolvare']  // Only these fields from Teme
+    });
+
+    const payload = teme.map(t => {
+      const test = t.Test;  // The Test might be null
+      return {
+        idtema:        t.idtema,
+        datatrimitere: t.datatrimitere,  // The date student received the assignment
+        status:        t.status,  // The status of the assignment
+        document:      test ? test.document : null,  // Test document (if available)
+        barem:         test ? test.barem : null,  // Test barem (if available)
+        rezolvare:     t.rezolvare  // The student's solution to the assignment
+      };
+    });
+
+    res.status(200).json(payload);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Eroare la obținerea temelor elevului.' });
   }
 };

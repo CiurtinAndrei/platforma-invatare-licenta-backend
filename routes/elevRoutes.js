@@ -10,5 +10,6 @@ router.post("/inregistrare", elevController.creeazaElev);
 router.get("/unassigned", authenticateJWT, elevController.getUnassigned);
 router.post("/enroll/:idelev", authenticateJWT, elevController.enroll);
 router.get("/my", authenticateJWT, elevController.getMine);
-
+router.get("/teme", authenticateJWT, elevController.getTemeElev);
+    
 module.exports = router;
