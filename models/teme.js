@@ -43,7 +43,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.JSONB,
       allowNull: true
     },
-    'feedback ': {
+    feedback: {
       type: DataTypes.TEXT,
       allowNull: true
     },

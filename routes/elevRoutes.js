@@ -11,5 +11,6 @@ router.get("/unassigned", authenticateJWT, elevController.getUnassigned);
 router.post("/enroll/:idelev", authenticateJWT, elevController.enroll);
 router.get("/my", authenticateJWT, elevController.getMine);
 router.get("/teme", authenticateJWT, elevController.getTemeElev);
-    
+router.post("/teme/:idtema/upload",authenticateJWT,elevController.uploadRezolvare);
+
 module.exports = router;

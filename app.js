@@ -35,6 +35,7 @@ app.use("/api/elevi", elevRoutes);
 app.use("/api/teste", testRoutes);
 
 app.use('/pdfs', express.static(path.join(__dirname, 'doc_gen')));
+app.use('/rezolvari', express.static(path.join(__dirname,'el_subm')));
 
 app.listen(port, async (err) => {
     if (err) {

@@ -1,8 +1,70 @@
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
+const multer = require("multer");
 const bcrypt = require("bcrypt");
 const { Profesori, Elevi } = require("../models");
 const { Teme, Teste } = require("../models");
 
-// existing registration
+const SOLUTIONS_BASE_URL = "http://localhost:8000/rezolvari";
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "..", "el_subm");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const randomPart = crypto.randomBytes(6).toString("hex");       
+    const filename = `rez_doc_${Date.now()}_${randomPart}.pdf`;
+    cb(null, filename);
+  }
+});
+
+const upload = multer({ storage });
+
+
+exports.uploadRezolvare = [
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const { idtema } = req.params;
+      if (!req.file) {
+        return res.status(400).json({ error: "Niciun fișier PDF încărcat." });
+      }
+
+      const tema = await Teme.findByPk(idtema);
+      if (!tema) {
+        fs.unlinkSync(req.file.path);
+        return res.status(404).json({ error: "Tema nu a fost găsită." });
+      }
+
+      if (tema.rezolvare) {
+        const oldFilename = path.basename(tema.rezolvare);
+        const oldPath = path.join(__dirname, "..", "el_subm", oldFilename);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      const publicUrl = `${SOLUTIONS_BASE_URL}/${req.file.filename}`;
+      tema.rezolvare = publicUrl;
+      tema.status = "În curs de corectare";
+      await tema.save();
+
+      return res.status(200).json({
+        message: "Rezolvare încărcată cu succes.",
+        rezolvare: publicUrl
+      });
+    } catch (err) {
+      console.error("Eroare la încărcarea rezolvării:", err);
+      return res.status(500).json({ error: "Eroare internă la upload." });
+    }
+  }
+];
+
+
+
 exports.creeazaElev = async (req, res) => {
   try {
     const { nume, prenume, adresa, email, telefon, scoala, parola, clasa } = req.body;
@@ -112,7 +174,8 @@ exports.getTemeElev = async (req, res) => {
         }
       ],
       where: { idelev: elevId },  // Filter by student ID
-      attributes: ['idtema', 'datatrimitere', 'status', 'rezolvare']  // Only these fields from Teme
+      attributes: ['idtema', 'datatrimitere', 'status', 'rezolvare', 'nota', 'feedback'],  // Only these fields from Teme
+      order:[['idtema', 'ASC']]
     });
 
     const payload = teme.map(t => {
@@ -121,9 +184,12 @@ exports.getTemeElev = async (req, res) => {
         idtema:        t.idtema,
         datatrimitere: t.datatrimitere,  // The date student received the assignment
         status:        t.status,  // The status of the assignment
+        titlu:         test ? test.titlu: null,
         document:      test ? test.document : null,  // Test document (if available)
         barem:         test ? test.barem : null,  // Test barem (if available)
-        rezolvare:     t.rezolvare  // The student's solution to the assignment
+        rezolvare:     t.rezolvare,  // The student's solution to the assignment
+        nota:          t.nota,
+        feedback:      t.feedback
       };
     });
 
