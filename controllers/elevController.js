@@ -122,7 +122,7 @@ exports.getUnassigned = async (req, res) => {
 // POST /api/elevi/enroll/:idelev
 exports.enroll = async (req, res) => {
   try {
-    const profesorId = req.user.id;      // ← use req.user.id from your JWT
+    const profesorId = req.user.id;    
     const { idelev } = req.params;
     const elev = await Elevi.findByPk(idelev);
 
@@ -141,7 +141,7 @@ exports.enroll = async (req, res) => {
 // GET /api/elevi/my
 exports.getMine = async (req, res) => {
   try {
-    const profesorId = req.user.id;      // ← from your JWT
+    const profesorId = req.user.id;     
     const elevi = await Elevi.findAll({
       where: { idprof: profesorId },
       attributes: ["idelev", "nume", "prenume", "clasa"]
@@ -168,26 +168,26 @@ exports.getTemeElev = async (req, res) => {
       include: [
         {
           model: Teste,
-          as: 'Test',  // Alias used in the association
-          required: false,  // Allow Test to be null
+          as: 'Test',  
+          required: false,
           attributes: ['titlu', 'document', 'barem']
         }
       ],
-      where: { idelev: elevId },  // Filter by student ID
-      attributes: ['idtema', 'datatrimitere', 'status', 'rezolvare', 'nota', 'feedback'],  // Only these fields from Teme
+      where: { idelev: elevId },  
+      attributes: ['idtema', 'datatrimitere', 'status', 'rezolvare', 'nota', 'feedback'],  
       order:[['idtema', 'ASC']]
     });
 
     const payload = teme.map(t => {
-      const test = t.Test;  // The Test might be null
+      const test = t.Test;  
       return {
         idtema:        t.idtema,
-        datatrimitere: t.datatrimitere,  // The date student received the assignment
-        status:        t.status,  // The status of the assignment
+        datatrimitere: t.datatrimitere,
+        status:        t.status, 
         titlu:         test ? test.titlu: null,
-        document:      test ? test.document : null,  // Test document (if available)
-        barem:         test ? test.barem : null,  // Test barem (if available)
-        rezolvare:     t.rezolvare,  // The student's solution to the assignment
+        document:      test ? test.document : null, 
+        barem:         test ? test.barem : null, 
+        rezolvare:     t.rezolvare,  
         nota:          t.nota,
         feedback:      t.feedback
       };

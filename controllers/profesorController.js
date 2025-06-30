@@ -53,23 +53,20 @@ exports.creeazaProfesor = async (req, res) =>{
 
 exports.assignTema = async (req, res) => {
     try {
-      const profesorId = req.user.id;               // from JWT
+      const profesorId = req.user.id;            
       const { idtest, idelev } = req.params;
   
-      // 1) Verify test exists and belongs to this profesor
       const test = await Teste.findByPk(idtest);
       if (!test || test.idprofesor !== profesorId) {
         return res.status(404).json({ error: 'Test inexistent sau nepermis.' });
       }
   
-      // 2) Create the tema
-      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const today = new Date().toISOString().slice(0, 10); 
       await Teme.create({
         idelev,
         idtest,
         datatrimitere: today,
         status: 'Trimis',
-        // datacorectare, nota, raportprofesor, feedback  remain NULL
       });
   
       return res.status(201).json({ message: 'Temă trimisă cu succes.' });
@@ -85,7 +82,6 @@ exports.assignTema = async (req, res) => {
     try {
       const profesorId = req.user.id;
   
-      // LEFT JOIN on Test so we still get Teme rows even if Test is null
       const assignments = await Teme.findAll({
         include: [
           {
@@ -97,7 +93,7 @@ exports.assignTema = async (req, res) => {
           {
             model: Teste,
             as: 'Test',
-            required: false,              // ← allow Test to be null
+            required: false,             
             attributes: ['titlu', 'document', 'barem']
           }
         ],
@@ -106,7 +102,7 @@ exports.assignTema = async (req, res) => {
       });
   
       const payload = assignments.map(a => {
-        const test = a.Test;  // may be null
+        const test = a.Test; 
         return {
           idtema:        a.idtema,
           fullName:      `${a.Elev.nume} ${a.Elev.prenume}`,
@@ -132,15 +128,12 @@ exports.assignTema = async (req, res) => {
     try {
       const { idtema } = req.params;
   
-      // 1) Find the Tema so we can see if there's a rezolvare file
       const tema = await Teme.findByPk(idtema);
       if (!tema) {
         return res.status(404).json({ error: "Assignment inexistent." });
       }
   
-      // 2) If there is a rezolvare URL, extract its filename and delete it
       if (tema.rezolvare) {
-        // tema.rezolvare might be e.g. "http://localhost:8000/rezolvari/rez_doc_… .pdf"
         const filename = path.basename(tema.rezolvare);
         const filePath = path.join(__dirname, "..", "el_subm", filename);
         if (fs.existsSync(filePath)) {
@@ -148,7 +141,6 @@ exports.assignTema = async (req, res) => {
         }
       }
   
-      // 3) Now remove the database row
       await Teme.destroy({ where: { idtema } });
   
       res.status(200).json({ message: "Assignment șters cu succes." });
@@ -163,9 +155,8 @@ exports.assignTema = async (req, res) => {
     try {
       const profesorId = req.user.id;
       const { idtema } = req.params;
-      const { scores } = req.body; // expect array of 18 integers
+      const { scores } = req.body;
   
-      // 1) Find tema and verify ownership
       const tema = await Teme.findByPk(idtema);
       if (!tema) return res.status(404).json({ error: 'Tema inexistentă.' });
       const test = await Teste.findByPk(tema.idtest);
@@ -173,7 +164,6 @@ exports.assignTema = async (req, res) => {
         return res.status(403).json({ error: 'Nu aveți permisiunea de a corecta această temă.' });
       }
   
-      // 2) Fetch asociere_et entries ordered by idasociere
       const entries = await AsociereEt.findAll({
         where: { idtest: tema.idtest },
         include: [
@@ -192,7 +182,6 @@ exports.assignTema = async (req, res) => {
         return res.status(400).json({ error: 'Numărul de scoruri nu corespunde exercițiilor.' });
       }
   
-      // 3) Update punctaj for each entry
       let total = 0;
       for (let i = 0; i < entries.length; i++) {
         const pts = parseInt(scores[i], 10);
@@ -205,7 +194,6 @@ exports.assignTema = async (req, res) => {
 
       await tema.update()
   
-      // 4) Build raport JSON
       const student = await Elevi.findByPk(tema.idelev);
       const report = {
         assignment_id: tema.idtema,
@@ -219,10 +207,8 @@ exports.assignTema = async (req, res) => {
         }))
       };
   
-      // 5) Save raportprofesor
       await tema.update({ raportprofesor: JSON.stringify(report) });
   
-      // 6) Send to Python API for AI feedback
       const pyRes = await axios.post(
         'http://localhost:8001/process-report',
         report
@@ -230,9 +216,7 @@ exports.assignTema = async (req, res) => {
       const { feedback } = pyRes.data;
       const feedback_text = pyRes.data.feedback
       console.log(feedback_text)
-      // 7) Save feedback
-  
-      // 8) Set datacorectare to current date and update tema status to "Corectat"
+
       await tema.update({
         datacorectare: new Date(),
         status: 'Corectat',
@@ -240,7 +224,6 @@ exports.assignTema = async (req, res) => {
         feedback: feedback_text
       });
   
-      // 9) Return success response
       return res.status(200).json({
         message: 'Corectare salvată și feedback generat.',
         feedback
